@@ -14,18 +14,36 @@ independent ground truth.
 
 ## Findings
 
-**1. Accuracy degrades slowly with fewer probes.** Reducing the probe fleet
-from 346 trips to 27 — a 13-fold cut — raised mean absolute error from 6.1 to
-8.2 mph. Most of the reconstruction quality survives extreme sparsity.
-
-| Sampling rate | Trips | Grid coverage | MAE (mph) |
-|---|---|---|---|
-| 2%  | 27  | 3.4%  | 8.16 ± 0.13 |
-| 5%  | 69  | 8.8%  | 7.56 ± 0.29 |
-| 10% | 138 | 15.8% | 6.77 ± 0.04 |
-| 25% | 346 | 34.8% | 6.13 |
+**1. Ground truth choice changes the conclusion.** Scored against the full
+probe set, accuracy appears to improve steadily with more probes (8.2 → 6.1
+mph). Scored against independent loop detectors, the same reconstructions
+improve far less (10.9 → 9.3 mph). Much of the apparent gain was the
+estimate agreeing better with its own input.
 
 ![Penetration sweep](figures/penetration_sweep.png)
+
+**2. Accuracy is remarkably insensitive to probe count.** Against loops, 27
+vehicles achieve MAE 10.9 mph; 346 vehicles achieve 9.3; all 1,387 achieve
+9.0. A 51-fold increase in probes buys under 2 mph.
+
+| Rate | Trips | MAE (mph) | Corr | Bias | MAE congested | MAE free-flow |
+|---|---|---|---|---|---|---|
+| 2%  | 27  | 10.88 ± 0.36 | 0.76 | −4.66 | 8.01 | 12.89 |
+| 5%  | 69  | 10.38 ± 0.38 | 0.78 | −4.80 | 7.24 | 12.39 |
+| 10% | 138 | 9.76 ± 0.09  | 0.81 | −5.30 | 5.82 | 11.92 |
+| 25% | 346 | 9.33 ± 0.07  | 0.83 | −5.54 | 4.87 | 11.34 |
+
+**3. More probes help only in congestion.** Congested-regime error falls 39%
+from 2% to 25% sampling; free-flow error falls 12%. Free-flow error is
+structural, not a data-volume problem: the smoothing kernel drags narrow
+free-flow bands toward adjacent congestion. A shockwave-preserving method,
+not more probes, is what would improve it.
+
+**4. Smoothing recovers signal that raw probes miss.** At full penetration
+the ASM reconstruction correlates with loop detectors slightly better
+(r = 0.866) than the raw probe observations it was built from (r = 0.853).
+Averaging along traffic characteristics cancels GPS noise and single-vehicle
+variation.
 
 **2. Smoothing recovers signal that raw probes miss.** Against independent
 loop detectors, the ASM reconstruction correlates *better* (r = 0.866) than
@@ -76,6 +94,11 @@ Three independent sources, deliberately kept separate from estimator input:
 - The sweep covers 2–25% sampling. Denser rates were not run.
 - Sampling rate is the fraction of *experiment trips*, not true market
   penetration among all I-880 traffic.
+- A systematic −5 mph bias persists at every sampling rate. It does not
+  shrink with more data, so it reflects method error rather than sampling:
+  both ASM's free-flow blurring and the g-factor's known tendency to
+  over-read speed in congestion push in the same direction. The two cannot
+  be separated with this data.
 
 ## Reproducing
 
