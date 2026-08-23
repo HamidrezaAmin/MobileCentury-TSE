@@ -1,0 +1,16 @@
+# Virtual environment
+.TRSP/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data -- NOT redistributable (Mobile Century license) and reproducible
+data/
+
+# Editor
+.vscode/
